@@ -16,10 +16,17 @@ function ok<T>(data: T) {
 }
 
 export const routes = {
-  // List the invoices of the caller's workspace.
-  listInvoices: async (ctx: Ctx) => {
+  // List the invoices of the caller's workspace, one page at a time.
+  listInvoices: async (ctx: Ctx, page: { cursor?: string; limit?: number } = {}) => {
     if (!isSignedIn(ctx.session)) return deny("sign in required");
-    return ok(await db.invoices.listByWorkspace(ctx.session.user.workspaceId));
+    const limit = Math.min(Math.max(Math.trunc(page.limit ?? 25), 1), 100);
+    const all = (await db.invoices.listByWorkspace(ctx.session.user.workspaceId)).sort((a, b) =>
+      a.id.localeCompare(b.id),
+    );
+    const start = page.cursor ? all.findIndex((i) => i.id > page.cursor!) : 0;
+    const items = start === -1 ? [] : all.slice(start, start + limit);
+    const nextCursor = items.length === limit ? items[items.length - 1].id : undefined;
+    return ok({ items, nextCursor });
   },
 
   // Read one invoice. It must belong to the caller's workspace.
