@@ -68,4 +68,12 @@ export const routes = {
     await db.comments.save(updated);
     return ok(updated);
   },
+  // Delete a comment.
+  deleteComment: async (ctx: Ctx, commentId: string) => {
+    if (!isSignedIn(ctx.session)) return deny("sign in required");
+    const comment = await db.comments.get(commentId);
+    if (!comment || !sameWorkspace(ctx.session, comment)) return deny("not found");
+    await db.comments.delete(commentId);
+    return ok({ deleted: commentId });
+  },
 };
