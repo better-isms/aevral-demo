@@ -39,5 +39,6 @@ export const db = {
   comments: {
     get: async (id: string) => comments.get(id),
     save: async (comment: Comment) => void comments.set(comment.id, comment),
+    delete: async (id: string) => void comments.delete(id),
   },
 };
