@@ -19,7 +19,7 @@ export const routes = {
   // Count audit entries. Authorization: workspace admins only (G10 scratch, never merged).
   auditStats: async (ctx: Ctx) => {
     if (!isSignedIn(ctx.session) || !isAdmin(ctx.session)) return deny("admin only");
-    return ok({ entries: auditCount() });
+    return ok({ entries: auditCount(), at: Date.now() });
   },
 
   // List the invoices of the caller's workspace.
