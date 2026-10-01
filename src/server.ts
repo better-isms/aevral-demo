@@ -16,7 +16,7 @@ function ok<T>(data: T) {
 }
 
 export const routes = {
-  // Count audit entries. Authorization: workspace admins only (G10 scratch, never merged).
+  // Count audit entries. Authorization: workspace admins only; US-rail check (G10 scratch, never merged).
   auditStats: async (ctx: Ctx) => {
     if (!isSignedIn(ctx.session) || !isAdmin(ctx.session)) return deny("admin only");
     return ok({ entries: auditCount(), at: Date.now() });
