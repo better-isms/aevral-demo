@@ -10,3 +10,8 @@ export const audit = {
     entries.push({ action, meta, at: Date.now() });
   },
 };
+
+/** Number of audit entries recorded so far (G10 dev E2E scratch change, never merged). */
+export function auditCount(): number {
+  return entries.length;
+}
