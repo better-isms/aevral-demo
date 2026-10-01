@@ -2,7 +2,7 @@
 // server here. It wires the endpoints the demo's pull requests touch.
 
 import { db } from "./db.js";
-import { audit } from "./audit.js";
+import { audit, auditCount } from "./audit.js";
 import { isAdmin, isSignedIn, sameWorkspace, type Session } from "./auth.js";
 import { refundInvoice } from "./billing.js";
 
@@ -16,6 +16,12 @@ function ok<T>(data: T) {
 }
 
 export const routes = {
+  // Count audit entries. Workspace admins only (G10 scratch, never merged).
+  auditStats: async (ctx: Ctx) => {
+    if (!isSignedIn(ctx.session) || !isAdmin(ctx.session)) return deny("admin only");
+    return ok({ entries: auditCount() });
+  },
+
   // List the invoices of the caller's workspace.
   listInvoices: async (ctx: Ctx) => {
     if (!isSignedIn(ctx.session)) return deny("sign in required");
