@@ -2,7 +2,7 @@
 
 A tiny, deliberately synthetic web service used to show what [Aevral](https://aevral.com) does on a pull request.
 
-Aevral is a GitHub App that reviews each pull request for **access-control security**: authorization bypass, IDOR, missing ownership checks, tenant isolation, and business-logic flaws. It posts an advisory Check plus inline comments pinned to the exact added lines, at most two findings per review, and never blocks a merge. On a public repository, a clean review posts one short note instead of staying silent.
+Aevral is a GitHub App that reviews each pull request for **access-control security**: authorization bypass, IDOR, missing ownership checks, tenant isolation, and business-logic flaws. It posts an advisory Check plus inline comments pinned to the exact added lines, at most five findings per review, and never blocks a merge. On a public repository, a clean review posts one short note instead of staying silent.
 
 ## What this repo is
 
