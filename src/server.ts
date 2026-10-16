@@ -31,12 +31,12 @@ export const routes = {
   },
 
   // Refund an invoice. Workspace admins only.
-  refund: async (ctx: Ctx, invoiceId: string) => {
+  refund: async (ctx: Ctx, invoiceId: string, amountCents?: number) => {
     if (!isSignedIn(ctx.session) || !isAdmin(ctx.session)) return deny("admin only");
     const invoice = await db.invoices.get(invoiceId);
     if (!invoice || !sameWorkspace(ctx.session, invoice)) return deny("not found");
-    const updated = await refundInvoice(invoice);
-    await audit.log("invoice.refund", { actor: ctx.session.user.id, invoiceId });
+    const updated = await refundInvoice(invoice, amountCents);
+    await audit.log("invoice.refund", { actor: ctx.session.user.id, invoiceId, amountCents });
     return ok(updated);
   },
 
