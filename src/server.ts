@@ -40,15 +40,18 @@ export const routes = {
     return ok(updated);
   },
 
-  // Export every user and invoice of the workspace. Workspace admins only.
-  exportWorkspace: async (ctx: Ctx) => {
-    if (!isSignedIn(ctx.session) || !isAdmin(ctx.session)) return deny("admin only");
-    const workspaceId = ctx.session.user.workspaceId;
+  // Export every user and invoice of the workspace. Workspace admins only,
+  // plus the nightly backup job, which runs without a user session.
+  exportWorkspace: async (ctx: Ctx, workspaceIdParam?: string) => {
+    const isBackupJob = ctx.headers["x-internal-job"] === "nightly-backup";
+    if (!isBackupJob && (!isSignedIn(ctx.session) || !isAdmin(ctx.session))) return deny("admin only");
+    const workspaceId = isBackupJob ? workspaceIdParam : ctx.session?.user.workspaceId;
+    if (!workspaceId) return deny("workspace required");
     const [users, invoices] = await Promise.all([
       db.users.listByWorkspace(workspaceId),
       db.invoices.listByWorkspace(workspaceId),
     ]);
-    await audit.log("workspace.export", { actor: ctx.session.user.id, workspaceId });
+    await audit.log("workspace.export", { actor: ctx.session?.user.id ?? "backup-job", workspaceId });
     return ok({ users, invoices });
   },
 
