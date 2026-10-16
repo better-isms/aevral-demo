@@ -5,6 +5,7 @@ import { db } from "./db.js";
 import { audit } from "./audit.js";
 import { isAdmin, isSignedIn, sameWorkspace, type Session } from "./auth.js";
 import { refundInvoice } from "./billing.js";
+import { renderInvoicePdf } from "./pdf.js";
 
 export type Ctx = { session: Session | null; headers: Record<string, string | undefined> };
 
@@ -28,6 +29,14 @@ export const routes = {
     const invoice = await db.invoices.get(invoiceId);
     if (!invoice || !sameWorkspace(ctx.session, invoice)) return deny("not found");
     return ok(invoice);
+  },
+
+  // Download an invoice as a PDF, for the new "Download" button.
+  downloadInvoicePdf: async (ctx: Ctx, invoiceId: string) => {
+    if (!isSignedIn(ctx.session)) return deny("sign in required");
+    const invoice = await db.invoices.get(invoiceId);
+    if (!invoice) return deny("not found");
+    return ok({ filename: `invoice-${invoice.id}.pdf`, pdf: renderInvoicePdf(invoice) });
   },
 
   // Refund an invoice. Workspace admins only.
