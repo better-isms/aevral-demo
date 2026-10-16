@@ -35,6 +35,12 @@ export const db = {
     get: async (id: string) => docs.get(id),
     listByWorkspace: async (workspaceId: string) =>
       [...docs.values()].filter((d) => d.workspaceId === workspaceId),
+    search: async (query: string) => {
+      const q = query.toLowerCase();
+      return [...docs.values()].filter(
+        (d) => d.title.toLowerCase().includes(q) || d.body.toLowerCase().includes(q),
+      );
+    },
   },
   comments: {
     get: async (id: string) => comments.get(id),

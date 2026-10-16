@@ -58,6 +58,14 @@ export const routes = {
     return ok(await db.docs.listByWorkspace(ctx.session.user.workspaceId));
   },
 
+  // Full-text search over documents, for the new search bar.
+  searchDocs: async (ctx: Ctx, query: string) => {
+    if (!isSignedIn(ctx.session)) return deny("sign in required");
+    if (query.trim().length < 2) return ok([]);
+    const hits = await db.docs.search(query);
+    return ok(hits.slice(0, 20).map((d) => ({ id: d.id, title: d.title, snippet: d.body.slice(0, 140) })));
+  },
+
   // Edit a comment. Only its author can edit it.
   editComment: async (ctx: Ctx, commentId: string, text: string) => {
     if (!isSignedIn(ctx.session)) return deny("sign in required");
