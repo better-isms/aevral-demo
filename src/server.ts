@@ -5,6 +5,7 @@ import { db } from "./db.js";
 import { audit } from "./audit.js";
 import { isAdmin, isSignedIn, sameWorkspace, type Session } from "./auth.js";
 import { refundInvoice } from "./billing.js";
+import { searchInvoiceReport } from "./reports.js";
 
 export type Ctx = { session: Session | null; headers: Record<string, string | undefined> };
 
@@ -51,6 +52,10 @@ export const routes = {
     await audit.log("workspace.export", { actor: ctx.session.user.id, workspaceId });
     return ok({ users, invoices });
   },
+
+  // Reports page search box: ?customer=...&sort=...
+  invoiceReport: async (ctx: Ctx, query: { customer?: string; sort?: string }) =>
+    searchInvoiceReport(ctx, query.customer ?? "", query.sort ?? "id"),
 
   // List the documents of the caller's workspace.
   listDocs: async (ctx: Ctx) => {
