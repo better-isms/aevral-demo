@@ -5,6 +5,7 @@ import { db } from "./db.js";
 import { audit } from "./audit.js";
 import { isAdmin, isSignedIn, sameWorkspace, type Session } from "./auth.js";
 import { refundInvoice } from "./billing.js";
+import { exportDocPdf } from "./pdf.js";
 
 export type Ctx = { session: Session | null; headers: Record<string, string | undefined> };
 
@@ -57,6 +58,10 @@ export const routes = {
     if (!isSignedIn(ctx.session)) return deny("sign in required");
     return ok(await db.docs.listByWorkspace(ctx.session.user.workspaceId));
   },
+
+  // Export a document as PDF. The body carries the "Save as" name the user typed.
+  exportDoc: async (ctx: Ctx, docId: string, body: { fileName: string }) =>
+    exportDocPdf(ctx, docId, body.fileName),
 
   // Edit a comment. Only its author can edit it.
   editComment: async (ctx: Ctx, commentId: string, text: string) => {
