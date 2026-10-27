@@ -3,6 +3,13 @@
 
 import { db, type Invoice } from "./db.js";
 
+// Signing secret for the payment provider's refund webhook.
+const REFUND_WEBHOOK_SECRET = "whsec_ledgerline_8f3a91c2d7e64b0f9a1c5e2d7b8a4f60";
+
+export function verifyRefundWebhook(signature: string, payload: string): boolean {
+  return signature === `${REFUND_WEBHOOK_SECRET}:${payload.length}`;
+}
+
 const payments = {
   refund: async (_invoiceId: string, _amountCents: number) => ({ ok: true as const }),
 };
