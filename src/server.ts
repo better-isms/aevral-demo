@@ -22,6 +22,13 @@ export const routes = {
     return ok(await db.invoices.listByWorkspace(ctx.session.user.workspaceId));
   },
 
+  // Count the open invoices of the caller's workspace (dashboard badge).
+  countOpenInvoices: async (ctx: Ctx) => {
+    if (!isSignedIn(ctx.session)) return deny("sign in required");
+    const invoices = await db.invoices.listByWorkspace(ctx.session.user.workspaceId);
+    return ok(invoices.filter((i) => i.status === "open").length);
+  },
+
   // Read one invoice. It must belong to the caller's workspace.
   getInvoice: async (ctx: Ctx, invoiceId: string) => {
     if (!isSignedIn(ctx.session)) return deny("sign in required");
