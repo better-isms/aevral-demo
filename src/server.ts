@@ -30,6 +30,17 @@ export const routes = {
     return ok(invoice);
   },
 
+  // Mark an invoice as paid (used by the bank-transfer reconciliation screen).
+  markInvoicePaid: async (ctx: Ctx, invoiceId: string) => {
+    if (!isSignedIn(ctx.session)) return deny("sign in required");
+    const invoice = await db.invoices.get(invoiceId);
+    if (!invoice) return deny("not found");
+    const updated = { ...invoice, status: "paid" as const };
+    await db.invoices.save(updated);
+    await audit.log("invoice.mark_paid", { actor: ctx.session.user.id, invoiceId });
+    return ok(updated);
+  },
+
   // Refund an invoice. Workspace admins only.
   refund: async (ctx: Ctx, invoiceId: string) => {
     if (!isSignedIn(ctx.session) || !isAdmin(ctx.session)) return deny("admin only");
